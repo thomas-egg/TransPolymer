@@ -43,7 +43,7 @@ def main(pretrain_config):
     tokenizer = PolymerSmilesTokenizer.from_pretrained("roberta-base", max_len=pretrain_config['blocksize'])
 
     """Construct MLM model"""
-    model = RobertaForMaskedLM(config=config).to(device)
+    model = RobertaForMaskedLM.from_pretrained("ckpt/pretrain.pt").to(device)
 
     """Load Data"""
     train_data, valid_data = split(pretrain_config['file_path'])
