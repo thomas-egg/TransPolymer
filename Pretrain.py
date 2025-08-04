@@ -5,14 +5,13 @@ import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from torch.utils.tensorboard import SummaryWriter
-from tensorboard import program
+import wandb
 import sys
 import os
 import yaml
 
 """Import PolymerSmilesTokenizer from PolymerSmilesTokenization.py"""
-from PolymerSmilesTokenization import PolymerSmilesTokenizer
+from PolymerSmilesTokenization import PolymerSmilesTokenizer, PRETRAINED_VOCAB_FILES_MAP, VOCAB_FILES_NAMES
 
 """Import LoadPretrainData"""
 from dataset import LoadPretrainData
@@ -67,17 +66,18 @@ def main(pretrain_config):
         save_total_limit=pretrain_config['save_total_limit'],
         fp16=pretrain_config['fp16'],
         logging_strategy=pretrain_config['logging_strategy'],
-        evaluation_strategy=pretrain_config['evaluation_strategy'],
+        eval_strategy=pretrain_config['eval_strategy'],
         learning_rate=pretrain_config['lr_rate'],
         lr_scheduler_type=pretrain_config['scheduler_type'],
         weight_decay=pretrain_config['weight_decay'],
         warmup_ratio=pretrain_config['warmup_ratio'],
         report_to=pretrain_config['report_to'],
         dataloader_num_workers=pretrain_config['dataloader_num_workers'],
-        sharded_ddp=pretrain_config['sharded_ddp'],
+        fsdp=pretrain_config['fsdp'],
     )
 
     """Set Trainer"""
+    wandb.init(project="polymer-pretraining")
     trainer = Trainer(
         model=model,
         args=training_args,
@@ -85,14 +85,6 @@ def main(pretrain_config):
         train_dataset=data_train,
         eval_dataset=data_valid
     )
-
-    """
-    writer = SummaryWriter(log_dir=training_args.logging_dir)
-    tb = program.TensorBoard()
-    tb.configure(argv=[None, '--logdir', training_args.logging_dir])
-    url = tb.launch()
-    print(f"Tensorflow listening on {url}")
-    """
     
 
     """Train and save model"""
