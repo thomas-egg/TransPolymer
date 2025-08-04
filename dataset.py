@@ -6,8 +6,7 @@ from torch.utils.data import Dataset, DataLoader
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
-from torch.utils.tensorboard import SummaryWriter
-from tensorboard import program
+import wandb
 import sys
 import os
 import yaml
